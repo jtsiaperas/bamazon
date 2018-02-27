@@ -90,7 +90,7 @@ function addInventory(){
     .prompt([{
         name: "id",
         type: "input",
-        message: "Please type the ID of the product you wish to purchase."
+        message: "Please type the ID of the product you wish to restock."
     },{
         name: "quantity",
         type: "input",
@@ -117,7 +117,7 @@ function updateQuantity(item,quantity,flag)
 	var newTotal;
 	if (flag == "subtract")
 	{
-        newTotal = item.stock_quantity - quantity;
+        newTotal = parseInt(item.stock_quantity) - parseInt(quantity);
 	}
 	else
 	{
@@ -129,6 +129,44 @@ function updateQuantity(item,quantity,flag)
 	query = mysql.format(query,inserts);
 	connection.query(query, function(err,res){
         if (err) throw err;
+        
     });
 
 }   
+
+function addProduct(){
+    
+	inquirer
+    .prompt([{
+        name: "id",
+        type: "input",
+        message: "Please type the ID of the product you wish to add."
+    },{
+        name: "quantity",
+        type: "input",
+        message: "Please type how many you wish to add."
+    },{
+        name: "name",
+        type: "input",
+        message: "Please type the name of the product you wish to add."
+    },{
+        name: "price",
+        type: "input",
+        message: "Please type the price of the product you wish to add."
+    },{
+        name: "department",
+        type: "input",
+        message: "Please type the department for the product you wish to add."
+    }])
+    .then(function(answer){
+
+        var query = "insert into products (item_id, product_name, department_name, price, stock_quantity) values (?,?,?,?,?)";
+	    var inserts = [answer.id, answer.name, answer.department, answer.price, answer.quantity];
+	    query = mysql.format(query,inserts);
+	    connection.query(query, function(err,res){
+        if (err) throw err;
+        console.log("New product added.");
+        managerInterface();
+        });
+    });
+}
