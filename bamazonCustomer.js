@@ -60,38 +60,35 @@ function customerInterface(){
     	var total;
     	query = mysql.format(query,inserts);
         connection.query(query, function(err,res){
-        	if (err) throw err;
-            if(res[0].stock_quantity > answer.quantity)
+            if (err) throw err;
+            if (res)
             {
-                total = answer.quantity * res[0].price;
-                updateQuantity(res[0],answer.quantity,"subtract");
-                console.log(`Your order total is $${total}`);
-            }
-            else if (res[0].stock_quantity < answer.quantity)
-            {
-            	console.log("Insufficient quantity!");
-            }
-            listProducts();  
+                if(res[0].stock_quantity > answer.quantity)
+                {
+                    total = answer.quantity * res[0].price;
+                    updateQuantity(res[0],answer.quantity,total);
+                    console.log(`Your order total is $${total}`);
+                }
+                else if (res[0].stock_quantity < answer.quantity)
+                {
+            	    console.log("Insufficient quantity!");
+                }
+            }    
+                listProducts();
+              
         });
 
     });
 
 }
 
-function updateQuantity(item,quantity,flag)
+function updateQuantity(item,quantity,total)
 {
-	var newTotal;
-	if (flag == "subtract")
-	{
-        newTotal = item.stock_quantity - quantity;
-	}
-	else
-	{
-		newTotal = item.stock_quantity + quantity;
-	}
-
-	var query = "update products set ??=? where ??=?";
-	var inserts = ["stock_quantity",newTotal,"item_id",item.item_id];
+	var newQuantity;
+    newQuantity = item.stock_quantity + quantity;
+    var newTotal = item.product_sales + total;
+	var query = "update products set ??=?, ??=? where ??=?";
+	var inserts = ["stock_quantity",newQuantity,"product_sales",newTotal,"item_id",item.item_id];
 	query = mysql.format(query,inserts);
 	connection.query(query, function(err,res){
         if (err) throw err;
